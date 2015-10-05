@@ -14,7 +14,7 @@ def loop(scrapers):
         time.sleep(config['refresh_rate'])
 
 def scrape(scrapers):
-    if 'initdb' in argv:
+    if 'init' in argv:
         tables_creator()
-    else:
+    elif 'run' in argv:
         loop(scrapers)
