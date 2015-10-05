@@ -34,10 +34,10 @@ def tables_creator():
     db.connect()
     tables = [Department,Author,Message]
     for table in reversed(tables):
-        logging.debug('DroppingTable', extra={'table':table})
-        table.drop_table()
-    for table in tables:
-        if not table.table_exists():
-            logging.debug('CreatingTable', extra={'table':table})
-            table.create_table()
+        if table.table_exists():
+            logging.debug('DroppingTable', extra={'table':table})
+            table.drop_table()
+        logging.debug('CreatingTable', extra={'table':table})
+        table.create_table()
+            
     db.close()
