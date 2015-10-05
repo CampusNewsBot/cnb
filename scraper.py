@@ -37,7 +37,7 @@ class Scraper():
         self.raw = urllib2.urlopen(self.URL).read()
         self.html_to_unicode()
         self.html = bs4.BeautifulSoup(self.raw, 'lxml')
-        logging.info('ContentFetched')
+        logging.info('Fetched')
 
     def html_to_unicode(self):
         lines = self.raw.split('\n')
@@ -64,8 +64,10 @@ class Scraper():
                             .where(Author.department==department) \
                             .order_by(+Message.id).limit(len(self.news)))
 
+        logging.debug('ComparingMessageLists')
         for message in old_messages:
             if message.text == self.news[0]['text']:
+                logging.debug('PoppingNewsPiece')
                 self.news.pop(0)
 
         for news_piece in self.news:
@@ -73,7 +75,6 @@ class Scraper():
                                              name=news_piece['author'])
 
             message = Message.create(author=author, text=news_piece['text'])
-            news_piece['id'] = message.id
             logging.debug('MessageSynced', extra={'id':message.id})
         db.close()
         logging.info('MessagesSynced', extra={'count':len(self.news)})
@@ -82,7 +83,6 @@ class Scraper():
         headers = {'X-Auth-Key':config['orchestrator']['keys'][self.DEPARTMENT],
                    'Content-Type':'application/json'}
         url = '{}/channel/{}-{}'.format(config['orchestrator']['host'],
-                                           #config['orchestrator']['port'],
                                            config['orchestrator']['base'],
                                            self.DEPARTMENT)
         db.connect()
@@ -101,35 +101,33 @@ class Scraper():
             if response.status_code == 200:
                 message.receivers = response.json()['receivers']
                 message.save()
-                logging.debug('MessageSend',extra={'id':message.id,
+                logging.debug('MessageSent',extra={'id':message.id,
                                                    'receivers':message.receivers
                                                    })
             else:
-                logging.error('OrchestratorHookDown', exc_info=True,
+                logging.error('OrchestratorHookDown',
                               extra={'code':response.status_code,
                                      'message_id':message.id})
         db.close()
 
-
     def update(self):
         try:
             self.fetch()
-        except urllib2.URLError as e:
-            logging.error('NewsFeedDown', extra={'url':self.URL}, exc_info=True)
+        except urllib2.URLError:
+            logging.error('NewsFeedDown', extra={'url':self.URL})
             return
         except AttributeError:
-            logging.error('ParsingFailed', extra={'url':self.URL}, exc_info=True)
+            logging.error('ParsingFailed', extra={'url':self.URL})
             return
         self.parse_wrapper()
         try:
             self.sync()
-        except peewee.OperationalError as e:
-            logging.error('DBError', exc_info=True)
+        except peewee.OperationalError:
+            logging.error('DBError')
             return
         try:
             self.post()
-            pass
-        except requests.exceptions.RequestException as e:
-            logging.error('OrchestratorHookDown', exc_info=True)
-        except peewee.OperationalError as e:
-            logging.error('DBError', exc_info=True)
+        except requests.exceptions.RequestException:
+            logging.error('OrchestratorHookDown')
+        except peewee.OperationalError:
+            logging.error('DBError')
