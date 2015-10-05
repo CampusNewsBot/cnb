@@ -1,0 +1,15 @@
+orchestrator:
+  host: https://localhost/
+  valid_cert: True
+  base: myuni
+  keys:
+    department: key
+database:
+  name: cnb
+  user: cnb
+  password: cnb
+log:
+  file: scraper.log
+  level: info
+refresh_rate: 60
+timezone: Europe/Rome
