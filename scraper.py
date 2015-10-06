@@ -1,5 +1,6 @@
 import json
 import logging
+from sys import argv
 import bs4
 import urllib2
 import requests
@@ -96,18 +97,22 @@ class Scraper():
             payload = model_to_dict(message)
             payload['author'] = payload['author']['name']
             payload = json.dumps(payload,default=date_serializer)
-            response = requests.post(url=url, data=payload, headers=headers,
-                                     verify=config['orchestrator']['valid_cert'])
-            if response.status_code == 200:
-                message.receivers = response.json()['receivers']
-                message.save()
-                logging.debug('MessageSent',extra={'id':message.id,
+            if not '--stealth' in argv:
+                response = requests.post(url=url, data=payload, headers=headers,
+                                         verify=config['orchestrator']['valid_cert'])
+                if response.status_code == 200:
+                    message.receivers = response.json()['receivers']
+                    message.save()
+                    logging.debug('MessageSent',extra={'id':message.id,
                                                    'receivers':message.receivers
                                                    })
+                else:
+                    logging.error('OrchestratorHookDown',
+                                  extra={'code':response.status_code,
+                                         'message_id':message.id})
             else:
-                logging.error('OrchestratorHookDown',
-                              extra={'code':response.status_code,
-                                     'message_id':message.id})
+                message.receivers = 0
+                message.save()
         db.close()
 
     def update(self):
