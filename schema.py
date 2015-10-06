@@ -37,7 +37,8 @@ def tables_creator():
         if table.table_exists():
             logging.debug('DroppingTable', extra={'table':table})
             table.drop_table()
+    for table in tables:
         logging.debug('CreatingTable', extra={'table':table})
         table.create_table()
-            
+
     db.close()
