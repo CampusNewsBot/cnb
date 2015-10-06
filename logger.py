@@ -3,9 +3,17 @@ from config import config
 from pythonjsonlogger import jsonlogger
 
 level = getattr(logging, config['log']['level'].upper())
-logging.basicConfig(filename=config['log']['file'], level=level)
 logger = logging.getLogger()
-logHandler = logging.StreamHandler()
+logger.setLevel(level)
+
+streamHandler = logging.StreamHandler()
+fileHandler = logging.FileHandler(config['log']['file'])
+
 formatter = jsonlogger.JsonFormatter()
-logHandler.setFormatter(formatter)
-logger.addHandler(logHandler)
+streamHandler.setFormatter(formatter)
+fileHandler.setFormatter(formatter)
+
+logger.addHandler(streamHandler)
+logger.addHandler(fileHandler)
+
+logging.getLogger("peewee").setLevel(logging.WARNING)

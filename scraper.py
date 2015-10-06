@@ -46,7 +46,6 @@ class Scraper():
         for line in lines:
             if line:
                 encoding = bs4.dammit.chardet.detect(line)
-                logging.debug('EncodingDetected', extra=encoding)
                 self.raw += line.decode(encoding['encoding'])
 
     def parse(self):
@@ -68,9 +67,14 @@ class Scraper():
 
         logging.debug('ComparingMessageLists')
         for message in old_messages:
+            logging.debug('PopNewsPiece')
             if message.text == self.news[0]['text']:
-                logging.debug('PoppingNewsPiece')
                 self.news.pop(0)
+                logging.debug('Match')
+            else:
+                logging.debug('DoesNotMatch',
+                              extra={'old':message.text[:40],
+                                     'new':self.news[0]['text'][:40]})
 
         for news_piece in self.news:
             author, _ = Author.get_or_create(department=department,
@@ -117,6 +121,7 @@ class Scraper():
         db.close()
 
     def update(self):
+        logging.info('StartUpdate', extra={'date':datetime.datetime.now()})
         try:
             self.fetch()
         except urllib2.URLError:
