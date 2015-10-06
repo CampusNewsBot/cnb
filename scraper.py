@@ -67,14 +67,14 @@ class Scraper():
 
         logging.debug('ComparingMessageLists')
         for message in old_messages:
-            logging.debug('PopNewsPiece')
+            logging.debug('ComparingMessage'
+                          extra={'old':message.text[:40],
+                                 'new':self.news[0]['text'][:40]})
             if message.text == self.news[0]['text']:
                 self.news.pop(0)
                 logging.debug('Match')
             else:
-                logging.debug('DoesNotMatch',
-                              extra={'old':message.text[:40],
-                                     'new':self.news[0]['text'][:40]})
+                logging.debug('DoesNotMatch')
 
         for news_piece in self.news:
             author, _ = Author.get_or_create(department=department,
