@@ -55,7 +55,7 @@ class Scraper():
     def parse_wrapper(self):
         self.news = []
         self.parse()
-        self.news = reversed(self.news)
+        self.news = self.news[::-1]
         logging.info('MessagesParsed', extra={'count':len(self.news),
                                               'department':self.DEPARTMENT})
 
