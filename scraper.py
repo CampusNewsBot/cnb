@@ -63,7 +63,7 @@ class Scraper():
         department, _ = Department.get_or_create(name=self.DEPARTMENT)
         old_messages = list(Message.select().join(Author) \
                             .where(Author.department==department) \
-                            .order_by(+Message.id).limit(len(self.news)))
+                            .order_by(+Message.id).limit(len(self.news)*2))
 
         logging.debug('ComparingMessageLists')
         for message in old_messages:
