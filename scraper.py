@@ -67,6 +67,8 @@ class Scraper():
 
         logging.debug('ComparingMessageLists')
         for message in old_messages:
+            if not self.news:
+                break
             logging.debug('ComparingMessage',
                           extra={'old':message.text[:40],
                                  'new':self.news[0]['text'][:40]})
