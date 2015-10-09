@@ -1,2 +1,2 @@
-from manage import scrape
+from app import scrape
 from scraper import Scraper
