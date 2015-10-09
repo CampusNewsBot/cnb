@@ -1,6 +1,6 @@
 # CNB scraper
 
-![Version 1.0.0](https://img.shields.io/badge/version-1.0.1-brightgreen.svg)
+![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-brightgreen.svg)
 
 The scraper module of the Campus News Bot periodically checks a given set of
 webpages for news and pushes them to the orchestrator on the appropriate channel.
