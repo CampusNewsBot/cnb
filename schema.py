@@ -3,7 +3,9 @@ import logging
 from peewee import *
 from config import config
 
-db = PostgresqlDatabase(config['database']['name'],
+db = PostgresqlDatabase(config['database']['database'],
+                        host=config['database']['host'],
+                        port=config['database']['port'],
                         user=config['database']['user'],
                         password=config['database']['password'])
 
