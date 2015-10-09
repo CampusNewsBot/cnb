@@ -1,12 +1,13 @@
 # CNB scraper
 
-![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-brightgreen.svg)
+![Version 1.0.0](https://img.shields.io/badge/version-1.0.1-brightgreen.svg)
 
 The scraper module of the Campus News Bot periodically checks a given set of
 webpages for news and pushes them to the orchestrator on the appropriate channel.
 
 # Architecture
 The present repository contains the `scraper`, which should be imported as a module and used as follow:
+
 * create an empty project directory, let's say `myuni-scraper`
 * clone this repo in `myuni-scraper/scraper`
 * copy the whole content of  `myuni-scraper/scraper/example` into `myuni-scraper`
@@ -17,6 +18,7 @@ The present repository contains the `scraper`, which should be imported as a mod
 
 
 In the end the project should look as follows:
+
 ```
 .
 ├── config.yaml
@@ -45,6 +47,7 @@ In the end the project should look as follows:
 ```
 
 # Run
+
 * Issue `python manage.py init` to create the needed tables in the database
 * Issue `python manage.py run` to run the app
 * Issue `python manage.py run --stealth` to run the app without hitting the orchestrator, in case you just want to play around without flooding your users with messages
@@ -52,6 +55,7 @@ In the end the project should look as follows:
 # Dockerization
 In case you want to dockerize the scraper, a `Dockerfile` is already prepared.
 All you have to do is:
+
 * `docker build -t cnb/scraper .` to create the image
 * `docker run --name cnb-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres` to create a postgres instance
 * change the postgres host to `postgres` in `config.yaml`
