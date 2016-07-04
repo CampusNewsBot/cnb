@@ -1,6 +1,6 @@
 import logging
 
-DEBUG = True
+DEBUG = False
 DEBUG_NO_SEND = False
 
 telegram_url = 'https://api.telegram.org/bot{}/sendMessage'
