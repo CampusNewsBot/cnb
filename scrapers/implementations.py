@@ -50,7 +50,7 @@ class DiiCibioScraper(Scraper):
 
     def news_parser(self, html):
         news = []
-        for row in self.html.find_all('table')[1].find_all('tr'):
+        for row in html.find_all('table')[1].find_all('tr'):
             matches = self.regex.match(row.td.text).groups()
             news_piece = {}
             news_piece['text'], news_piece['author'] = matches
@@ -59,9 +59,9 @@ class DiiCibioScraper(Scraper):
 
 
 class WebUnitnScraper(Scraper):
-    def news_parser(self):
+    def news_parser(self, html):
         news = []
-        avvisi = self.html.find_all(class_='avviso')
+        avvisi = html.find_all(class_='avviso')
         for avv in avvisi:
             testo = avv.find_all(class_='avvisoTesto')[0]
             news_piece = {
@@ -97,14 +97,14 @@ class EconomiaScraper(WebUnitnScraper):
 
 
 class WebMagazineScraper(Scraper):
-    def news_parser(self):
-        view_content = self.html.find_all(class_='view-content')[0]
+    def news_parser(self, html):
+        view_content = html.find_all(class_='view-content')[0]
         items = view_content.find_all(class_='views-row')
         news = []
 
         for item in items:
             news_piece = {
-                'author': 'dipartimento di {}'.format(self.DEPARTMENT),
+                'author': 'dipartimento di {}'.format(self.name),
                 'text': item.a.text + '\n' + item.a.attrs['href']
             }
             news.append(news_piece)
