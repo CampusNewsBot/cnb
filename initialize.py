@@ -1,8 +1,9 @@
 import rethinkdb as r
+import config
 
 
 def create_db():
-    conn = r.connect(host='db')
+    conn = r.connect(host=config.database['host'], db=config.database['name'])
     if 'cnb' in r.db_list().run(conn):
         return
 

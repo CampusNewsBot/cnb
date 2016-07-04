@@ -1,6 +1,6 @@
 import re
 import logging
-from abstract import Scraper
+from .abstract import Scraper
 
 
 class DisiScraper(Scraper):

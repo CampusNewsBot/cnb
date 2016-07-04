@@ -3,13 +3,14 @@ import time
 import logging
 import urllib.request
 import rethinkdb as r
+import config
 
 
 def send_messages():
     logging.info('Starting Telegram sender')
     TELEGRAM_URL = 'https://api.telegram.org/bot{}/sendMessage'
 
-    conn = r.connect(host='db', db='cnb')
+    conn = r.connect(host=config.database['host'], db=config.database['name'])
     feed = r.table('news').filter({'sent': False}).changes().run(conn)
 
     for change in feed:

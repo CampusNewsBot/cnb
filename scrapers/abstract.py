@@ -2,6 +2,7 @@ import urllib
 import logging
 import bs4
 import rethinkdb as r
+import config
 
 
 class Scraper:
@@ -9,7 +10,8 @@ class Scraper:
         # self.name = ''
         logging.info('Starting ', self.name)
 
-        self.db = r.connect(host='db', db='cnb')
+        self.db = r.connect(host=config.database['host'],
+                            db=config.database['name'])
         self.old_news_factor = 2
 
     def run(self):
