@@ -14,15 +14,19 @@ def send_messages():
     feed = r.table('news').filter({'sent': False}).changes().run(conn)
 
     for change in feed:
+        change = change['new_val']
+        if 'chat' not in change:
+            return
         bot_id = r.table('bots').get('cnb').run(conn)['bot_id']
         chat_id = r.table('chats').get(change['chat']).run(conn)['chat_id']
-        payload = json.dumps({'chat_id': chat_id, 'text': change['text']})
+        payload = json.dumps({'chat_id': '@' + chat_id,
+                              'text': change['text']})
 
         status = None
         while status != 200:
             logging.info('Sending news', change['id'])
             req = urllib.request.Request(url=TELEGRAM_URL.format(bot_id),
-                                         data=payload,
+                                         data=payload.encode('utf-8'),
                                          headers={'Content-Type':
                                          'application/json'})
 
