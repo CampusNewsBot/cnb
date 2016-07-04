@@ -1,5 +1,6 @@
 import rethinkdb as r
 import config
+import logging
 
 
 def create_db():
@@ -7,6 +8,7 @@ def create_db():
     if 'cnb' in r.db_list().run(conn):
         return
 
+    logging.info('Initializing database')
     r.db_create('cnb').run(conn)
     conn.use('cnb')
 

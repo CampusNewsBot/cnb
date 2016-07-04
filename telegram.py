@@ -23,7 +23,7 @@ class Sender:
 
             status = None
             while status != 200:
-                logging.info('Sending news', message['id'])
+                logging.info('Sending news %s', message['id'])
                 req = urllib.request.Request(
                     url=config.telegram_url.format(bot_id),
                     data=payload.encode('utf-8'),
@@ -39,5 +39,5 @@ class Sender:
                     r.table('news').get(message['id'])\
                         .update({'send_date': r.now()}).run(self.db)
                 else:
-                    logging.error('Send failed', message['id'])
+                    logging.error('Send failed %s', message['id'])
                     time.sleep(10)

@@ -8,7 +8,7 @@ import config
 class Scraper:
     def __init__(self):
         # self.name = ''
-        logging.info('Starting ', self.name)
+        logging.info('Starting %s', self.name)
 
         self.db = r.connect(host=config.database['host'],
                             db=config.database['name'])
@@ -40,7 +40,7 @@ class Scraper:
 
         actual_news = []
         for candidate in candidate_news:
-            logging.debug('Checking: ', candidate['text'][:20])
+            logging.debug('Checking: %s', candidate['text'][:60])
             if candidate['text'] not in old_news:
                 actual_news.append(candidate)
         return actual_news
