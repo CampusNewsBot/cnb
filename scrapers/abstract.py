@@ -12,7 +12,7 @@ class Scraper:
 
         self.db = r.connect(host=config.database['host'],
                             db=config.database['name'])
-        self.old_news_factor = 2
+        self.old_news_factor = config.old_news_factor
 
     def run(self):
         url = r.table('chats').get(self.name).run(self.db)['url']
@@ -21,7 +21,7 @@ class Scraper:
         actual_news = self.check(candidate_news)
         self.update(actual_news)
 
-    def fetch(url):
+    def fetch(self, url):
         logging.debug('Fetching URL')
         return urllib.request.urlopen(url).read()
 
@@ -32,15 +32,18 @@ class Scraper:
 
     def check(self, candidate_news):
         logging.debug('Checking against existing news')
-        old_news = r.table('news').order_by('fetch_date')\
+        old_news = r.table('news').filter({'chat': self.name})\
+            .order_by('fetch_date')\
             .limit(self.old_news_factor * len(candidate_news))\
             .pluck('text').run(self.db)
+        old_news = list(map(lambda x: x['text'], old_news))
 
         actual_news = []
         for candidate in candidate_news:
             logging.debug('Checking: ', candidate['text'][:20])
             if candidate['text'] not in old_news:
                 actual_news.append(candidate)
+        return actual_news
 
     def update(self, actual_news):
         logging.debug('Updating news')
