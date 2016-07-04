@@ -6,38 +6,38 @@ import rethinkdb as r
 import config
 
 
-def send_messages():
-    logging.info('Starting Telegram sender')
-    TELEGRAM_URL = 'https://api.telegram.org/bot{}/sendMessage'
+class Sender:
+    def __init__(self):
+        logging.info('Starting Telegram sender')
+        self.db = r.connect(host=config.database['host'],
+                            db=config.database['name'])
 
-    conn = r.connect(host=config.database['host'], db=config.database['name'])
-    feed = r.table('news').filter({'sent': False}).changes().run(conn)
+    def send_messages(self):
+        for message in r.table('news').filter({'sent': False}).run(self.db):
 
-    for change in feed:
-        change = change['new_val']
-        if 'chat' not in change:
-            return
-        bot_id = r.table('bots').get('cnb').run(conn)['bot_id']
-        chat_id = r.table('chats').get(change['chat']).run(conn)['chat_id']
-        payload = json.dumps({'chat_id': '@' + chat_id,
-                              'text': change['text']})
+            bot_id = r.table('bots').get('cnb').run(self.db)['bot_id']
+            chat_id = r.table('chats').get(message['chat'])\
+                .run(self.db)['chat_id']
+            payload = json.dumps({'chat_id': '@' + chat_id,
+                                  'text': message['text']})
 
-        status = None
-        while status != 200:
-            logging.info('Sending news', change['id'])
-            req = urllib.request.Request(url=TELEGRAM_URL.format(bot_id),
-                                         data=payload.encode('utf-8'),
-                                         headers={'Content-Type':
-                                         'application/json'})
+            status = None
+            while status != 200:
+                logging.info('Sending news', message['id'])
+                req = urllib.request.Request(
+                    url=config.telegram_url.format(bot_id),
+                    data=payload.encode('utf-8'),
+                    headers={'Content-Type': 'application/json'})
 
-            if config.DEBUG and config.DEBUG_NO_SEND:
-                return
+                if config.DEBUG and config.DEBUG_NO_SEND:
+                    return
 
-            resp = urllib.request.urlopen(req)
-            status = resp.status
+                resp = urllib.request.urlopen(req)
+                status = resp.status
 
-            if status == 200:
-                change['sent'] = True
-            else:
-                logging.error('Send failed', change['id'])
-                time.sleep(10)
+                if status == 200:
+                    r.table('news').get(message['id'])\
+                        .update({'sent': True}).run(self.db)
+                else:
+                    logging.error('Send failed', message['id'])
+                    time.sleep(10)
