@@ -17,9 +17,9 @@ The database schema is automatically created by the application when no existing
 {"text": "foobar",
  "author": "John Snow",
  "id": 123-456,
- "sent": False,
+ "send_date": Mon Gen 01 2016 23:21:29 GMT+00:00,
  "chat": "lettere",
- "fetch_date": date}
+ "fetch_date": Mon Gen 01 2016 23:21:29 GMT+00:00}
  ```
 
 ### bots

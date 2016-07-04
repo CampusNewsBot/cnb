@@ -49,5 +49,5 @@ class Scraper:
         logging.debug('Updating news')
         for news in actual_news:
             news.update({'chat': self.name, 'fetch_date': r.now(),
-                         'sent': False})
+                         'send_date': None})
             r.table('news').insert(news).run(self.db)

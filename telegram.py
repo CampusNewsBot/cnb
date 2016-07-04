@@ -13,8 +13,8 @@ class Sender:
                             db=config.database['name'])
 
     def send_messages(self):
-        for message in r.table('news').filter({'sent': False}).run(self.db):
-
+        for message in r.table('news').filter({'send_date': None})\
+                .run(self.db):
             bot_id = r.table('bots').get('cnb').run(self.db)['bot_id']
             chat_id = r.table('chats').get(message['chat'])\
                 .run(self.db)['chat_id']
@@ -37,7 +37,7 @@ class Sender:
 
                 if status == 200:
                     r.table('news').get(message['id'])\
-                        .update({'sent': True}).run(self.db)
+                        .update({'send_date': r.now()}).run(self.db)
                 else:
                     logging.error('Send failed', message['id'])
                     time.sleep(10)
