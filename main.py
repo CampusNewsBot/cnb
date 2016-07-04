@@ -18,4 +18,4 @@ for scraper in scrapers:
 _thread.start_new_thread(send_messages, ())
 
 while True:
-    pass
+    time.sleep(60)
