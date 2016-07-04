@@ -25,6 +25,10 @@ def send_messages():
                                          data=payload,
                                          headers={'Content-Type':
                                          'application/json'})
+
+            if config.DEBUG and config.DEBUG_NO_SEND:
+                return
+
             resp = urllib.request.urlopen(req)
             status = resp.status
 
