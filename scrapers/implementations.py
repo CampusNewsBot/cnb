@@ -34,12 +34,12 @@ class DicamScraper(Scraper):
 
     def news_parser(self, html):
         news = []
-        for row in self.html.table.find_all('td'):
+        for row in html.table.find_all('td'):
             news_piece = {}
-            matches = self.REGEX.match(row.text).groups()
+            matches = self.regex.match(row.text).groups()
             news_piece['text'], news_piece['author'] = matches
             news.append(news_piece)
-        return self.news
+        return news
 
 
 class DiiCibioScraper(Scraper):
