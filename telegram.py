@@ -1,5 +1,4 @@
 import json
-import time
 import logging
 import urllib.request
 import rethinkdb as r
