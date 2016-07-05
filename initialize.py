@@ -4,7 +4,7 @@ import logging
 
 
 def create_db():
-    conn = r.connect(host=config.database['host'], db=config.database['name'])
+    conn = r.connect(**config.database)
     if 'cnb' in r.db_list().run(conn):
         return
 

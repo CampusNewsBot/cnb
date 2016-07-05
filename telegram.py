@@ -8,8 +8,7 @@ import config
 class Sender:
     def __init__(self):
         logging.info('Starting Telegram sender')
-        self.db = r.connect(host=config.database['host'],
-                            db=config.database['name'])
+        self.db = r.connect(**config.database)
 
     def send_messages(self):
         for message in r.table('news').filter({'send_date': None})\

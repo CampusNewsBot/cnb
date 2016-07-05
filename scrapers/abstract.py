@@ -10,9 +10,7 @@ class Scraper:
         # self.name = ''
         logging.info('Starting %s', self.name)
 
-        self.db = r.connect(host=config.database['host'],
-                            db=config.database['name'])
-        self.old_news_factor = config.old_news_factor
+        self.db = r.connect(**config.database)
 
     def run(self):
         url = r.table('chats').get(self.name).run(self.db)['url']
@@ -34,7 +32,7 @@ class Scraper:
         logging.debug('Checking against existing news')
         old_news = r.table('news').filter({'chat': self.name})\
             .order_by('fetch_date')\
-            .limit(self.old_news_factor * len(candidate_news))\
+            .limit(config.old_news_factor * len(candidate_news))\
             .pluck('text').run(self.db)
         old_news = list(map(lambda x: x['text'], old_news))
 
