@@ -33,6 +33,6 @@ The database schema is automatically created by the application when no existing
 ```
 {"id": "lettere",
  "url": "http://unitn.it/~lettere",
- "chat_id":"UnitnLettereNews"
+ "chat_id":"UnitnLettereNews",
  "enabled": true}
  ```
