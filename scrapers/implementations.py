@@ -78,7 +78,6 @@ class WebUnitnScraper(Scraper):
         # asoup = bs4.BeautifulSoup(html, 'lxml')
         # containers = asoup.find_all(class_='ui-widget-content')
         # for c in containers:
-        #     print c
         #     if c.h3 and c.h3.text.find(avv.a.attrs['title']) != -1:
         #         news_piece['text'] = c.div.text
         #         self.news.append(news_piece)
@@ -108,7 +107,7 @@ class WebMagazineScraper(Scraper):
                 'text': item.a.text + '\n' + item.a.attrs['href']
             }
             news.append(news_piece)
-        return self.news
+        return news
 
 
 class SociologiaScraper(WebMagazineScraper):
