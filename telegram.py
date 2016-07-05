@@ -18,8 +18,8 @@ class Sender:
             bot = r.table('bots').get('cnb').run(self.db)
             chat = r.table('chats').get(message['chat']).run(self.db)
             if not (bot and bot['enabled'] and chat and chat['enabled']) or\
-                    config.DEBUG and config.DEBUG_NO_SEND:
-                return
+                    (config.DEBUG and config.DEBUG_NO_SEND):
+                continue
             bot_id = bot['bot_id']
             chat_id = chat['chat_id']
 
@@ -31,7 +31,6 @@ class Sender:
                 url=config.telegram_url.format(bot_id),
                 data=payload.encode('utf-8'),
                 headers={'Content-Type': 'application/json'})
-
             resp = urllib.request.urlopen(req)
 
             if resp.status == 200:
