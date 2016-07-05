@@ -22,8 +22,9 @@ class Sender:
             bot_id = bot['bot_id']
             chat_id = chat['chat_id']
 
-            payload = json.dumps({'chat_id': '@' + chat_id,
-                                  'text': message['text']})
+            payload = json.dumps(
+                {'chat_id': '@' + chat_id,
+                 'text': '{text}\n-- {author}'.format(**message)})
 
             logging.info('Sending news %s', message['id'])
             req = urllib.request.Request(
