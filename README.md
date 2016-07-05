@@ -25,12 +25,14 @@ The database schema is automatically created by the application when no existing
 ### bots
 ```
 {"id": "cnb",
- "bot_id": "2343409:LDAS78BNOOW-jfhewokj"}
+ "bot_id": "2343409:LDAS78BNOOW-jfhewokj",
+ "enabled": true}
  ```
 
 ### chats
 ```
 {"id": "lettere",
  "url": "http://unitn.it/~lettere",
- "chat_id":"UnitnLettereNews"}
+ "chat_id":"UnitnLettereNews"
+ "enabled": true}
  ```
