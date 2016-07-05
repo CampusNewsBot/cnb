@@ -114,8 +114,8 @@ class SociologiaScraper(WebMagazineScraper):
     name = 'sociologia'
 
 
-class PsicologiaScraper(WebMagazineScraper):
-    name = 'psicologia'
+class CogsciScraper(WebMagazineScraper):
+    name = 'cogsci'
 
 scrapers = [
     DisiScraper(),
@@ -125,5 +125,5 @@ scrapers = [
     GiurisprudenzaScraper(),
     EconomiaScraper(),
     SociologiaScraper(),
-    PsicologiaScraper(),
+    CogsciScraper(),
 ]
