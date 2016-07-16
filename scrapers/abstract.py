@@ -31,7 +31,7 @@ class Scraper:
     def check(self, candidate_news):
         logging.debug('Checking against existing news')
         old_news = r.table('news').filter({'chat': self.name})\
-            .order_by('fetch_date')\
+            .order_by(r.desc('fetch_date'))\
             .limit(config.old_news_factor * len(candidate_news))\
             .pluck('text').run(self.db)
         old_news = list(map(lambda x: x['text'], old_news))
