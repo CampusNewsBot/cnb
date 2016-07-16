@@ -28,7 +28,7 @@ for scraper in scrapers:
 
 # Start Telegram sender Thread
 sender = telegram.Sender()
-_thread.start_new_thread(repeat, (sender.send_messages, config.send_timeout))
+_thread.start_new_thread(sender.repeat)
 
 while True:
     time.sleep(60)
