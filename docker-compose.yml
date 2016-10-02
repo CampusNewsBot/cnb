@@ -3,6 +3,8 @@ services:
   scraper:
     build: .
     restart: on-failure
+    volumes:
+      - "./scraper.log:/app/cnb_unitn.log"
     depends_on:
       - db
   db:
