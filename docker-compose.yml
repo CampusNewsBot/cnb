@@ -5,10 +5,4 @@ services:
     restart: on-failure
     volumes:
       - "./scraper.log:/app/cnb_unitn.log"
-    depends_on:
-      - db
-  db:
-    image: rethinkdb
-    ports:
-      - "127.0.0.1:8080:8080"
-      - "127.0.0.1:28015:28015"
+      - "./cnb.sqlite3:/app/cnb.sqlite3"

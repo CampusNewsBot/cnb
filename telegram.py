@@ -2,16 +2,14 @@ import json
 import logging
 import time
 import urllib.request
-import rethinkdb as r
-import config
-
-BOT_QUERY = r.table('bots').get('cnb')
+from models import Message
+from config import config
 
 
 class Sender:
     def __init__(self):
         logging.info('Starting Telegram sender')
-        self.db = r.connect(**config.database)
+
 
     def repeat(self):
         while True:
@@ -20,22 +18,19 @@ class Sender:
             except Exception as e:
                 send_admin('Exception in message sender: {}'.format(e))
                 logging.error(e)
-            bot = BOT_QUERY.run(self.db)
-            time.sleep(bot['send_interval'])
+
+            time.sleep(config()['bot']['send_interval'])
 
     def send_messages(self):
         logging.info('Sending news')
-        bot = BOT_QUERY.run(self.db)
 
-        if not bot['enabled'] or config.DEBUG_NO_SEND:
+        if not config()['bot']['enabled']:
             logging.info('Bot is disabled, quitting')
             return
 
-        messages = list(
-            r.table('news').filter({'send_date': None}).run(self.db))
+        messages = Message.select().where(Message.send_date == None)
 
         if len(messages) >= bot['send_limit']:
-            BOT_QUERY.update({'enabled': False}).run(self.db)
             error_message =\
                 'Too many ({}) messages in send pipeline, disabling bot'\
                 .format(sum(self.history))

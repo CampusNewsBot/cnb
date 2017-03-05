@@ -1,9 +1,10 @@
 import _thread
 import time
 import logging
-import config
-from initialize import create_db
-from scrapers.implementations import scrapers
+
+from config import config
+from scrapers import scrapers
+from models import init_db
 import telegram
 
 
@@ -15,16 +16,16 @@ def repeat(func, timeout):
 # Setup logging
 logger = logging.getLogger()
 logger.setLevel(config.log_level)
-fileHandler = logging.FileHandler(config.log_file)
+fileHandler = logging.FileHandler(config()['log']['file'])
 logger.addHandler(fileHandler)
 
 
 # Create db if necessary
-create_db()
+init_db()
 
 # Start scraper threads
 for scraper in scrapers:
-    _thread.start_new_thread(repeat, (scraper.run, config.scrape_timeout))
+    _thread.start_new_thread(repeat, (scraper.run, config()['scraping']['scrape_timeout']))
 
 # Start Telegram sender Thread
 sender = telegram.Sender()

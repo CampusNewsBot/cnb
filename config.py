@@ -1,15 +1,8 @@
 import logging
+import json
 
-DEBUG = False
-DEBUG_NO_SEND = False
-
-telegram_url = 'https://api.telegram.org/bot{}/sendMessage'
-database = {'host': 'localhost' if DEBUG else 'db', 'db': 'cnb'}
-
-log_level = logging.DEBUG if DEBUG else logging.INFO
-log_file = 'cnb_unitn.log'
-
-scrape_timeout = 300 if DEBUG else 5 * 60  # seconds
-
-
-old_news_factor = 2
+def config(path="channels.json"):
+    with open(path, 'r') as f:
+        c = json.loads(f.read())
+    c['log_level'] = logging.DEBUG if c['log']['level'] == 'debug' else logging.INFO
+    return c

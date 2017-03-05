@@ -1,0 +1,184 @@
+import urllib
+import logging
+import re
+import bs4
+from models import Message
+from config import config
+
+
+class Scraper:
+    def __init__(self):
+        logging.info('Starting scraper for: %s', self.name)
+
+    @property
+    def config(self):
+        c = list(filter(lambda c: c['channel'] == self.name,
+                        config()['channels']))
+        assert len(c) == 1, 'No config for scraper: {}'.format(self.name)
+        return c[0]
+
+
+    def run(self):
+        if not self.config['enabled']:
+            return
+        raw = self.fetch(self.config['scrapeUrl'])
+        candidate_news = self.parse(raw)
+        actual_news = self.check(candidate_news)
+        self.update(actual_news)
+
+    def fetch(self, url):
+        logging.debug('Fetching URL')
+        return urllib.request.urlopen(url).read()
+
+    def parse(self, raw):
+        logging.debug('Parsing HTML')
+        html = bs4.BeautifulSoup(raw, 'lxml')
+        return self.news_parser(html)
+
+    def check(self, candidate_news):
+        logging.debug('Checking against existing news')
+        old_news = Message.select().where(Message.channel == self.name)
+            .order_by(Message.fetch_date.desc())
+            .limit(config()['scraping']['old_news_factor'] * len(candidate_news))
+        old_news = list(map(lambda x: x.text, old_news))
+
+        actual_news = []
+        for candidate in candidate_news:
+            logging.debug('Checking against old news: %s', candidate['text'][:60])
+            if candidate['text'] not in old_news:
+                actual_news.append(candidate)
+        return actual_news
+
+    def update(self, actual_news):
+        logging.debug('Updating news')
+        for news in actual_news:
+            m = Message(text=news.text, author=news.author, channel=self.name)
+            m.save()
+
+
+
+
+class DisiScraper(Scraper):
+    def __init__(self):
+        self.regex = re.compile('.+ da (.*)')
+        self.name = 'disi'
+        super().__init__()
+
+    def news_parser(self, html):
+        news = []
+        for tag in [n for n in html.find_all('a') if 'name' in n.attrs]:
+            try:
+                tag = tag.tr.td
+                font_tags = tag.find_all('font')
+                author_parsed = self.regex.match(font_tags[1].text).groups()
+                news.append({
+                    'author': author_parsed[0],
+                    'text': font_tags[0].text,
+                })
+
+            except AttributeError:
+                logging.warning('ParsingError', exc_info=True)
+        return news[::-1]
+
+
+class DicamScraper(Scraper):
+    def __init__(self):
+        self.regex = re.compile('(.+)inserito il .* da (.*)', re.DOTALL)
+        self.name = 'dicam'
+        super().__init__()
+
+    def news_parser(self, html):
+        news = []
+        for row in html.table.find_all('td'):
+            news_piece = {}
+            matches = self.regex.match(row.text).groups()
+            news_piece['text'], news_piece['author'] = matches
+            news.append(news_piece)
+        return news
+
+
+class DiiCibioScraper(Scraper):
+    def __init__(self):
+        self.regex = re.compile(u'(.+)inserito il .* da (.*)', re.DOTALL)
+        self.name = 'dii-cibio'
+        super().__init__()
+
+    def news_parser(self, html):
+        news = []
+        for row in html.find_all('table')[1].find_all('tr'):
+            matches = self.regex.match(row.td.text).groups()
+            news_piece = {}
+            news_piece['text'], news_piece['author'] = matches
+            news.append(news_piece)
+        return news
+
+
+class WebUnitnScraper(Scraper):
+    def news_parser(self, html):
+        news = []
+        avvisi = html.find_all(class_='avviso')
+        for avv in avvisi:
+            testo = avv.find_all(class_='avvisoTesto')[0]
+            news_piece = {
+                'author': avv.find_all(class_='avvisoDocente')[0].a.text,
+                'text': testo.a.text + '\n' + testo.a.attrs['href']
+            }
+            news.append(news_piece)
+        return news
+
+        # The following code would provide a more meaningful text
+        # for each message, the caveat is a much higher number of requests
+        # avv = avv.find_all(class_='avvisoTesto')[0]
+        # html = urllib2.urlopen(avv.a.attrs['href']).read()
+        # asoup = bs4.BeautifulSoup(html, 'lxml')
+        # containers = asoup.find_all(class_='ui-widget-content')
+        # for c in containers:
+        #     if c.h3 and c.h3.text.find(avv.a.attrs['title']) != -1:
+        #         news_piece['text'] = c.div.text
+        #         self.news.append(news_piece)
+
+
+class LettereScraper(WebUnitnScraper):
+    name = 'lettere'
+
+
+class GiurisprudenzaScraper(WebUnitnScraper):
+    name = 'giurisprudenza'
+
+
+class EconomiaScraper(WebUnitnScraper):
+    name = 'economia'
+
+
+class WebMagazineScraper(Scraper):
+    def news_parser(self, html):
+        view_content = html.find_all(class_='view-content')[0]
+        items = view_content.find_all(class_='views-row')
+        news = []
+
+        for item in items:
+            news_piece = {
+                'author': 'dipartimento di {}'.format(self.name),
+                'text': item.a.text + '\n' + item.a.attrs['href']
+            }
+            news.append(news_piece)
+        return news
+
+
+class SociologiaScraper(WebMagazineScraper):
+    name = 'sociologia'
+
+
+class CogsciScraper(WebMagazineScraper):
+    name = 'cogsci'
+
+scrapers = [
+    DisiScraper(),
+    DiiCibioScraper(),
+    DicamScraper(),
+    LettereScraper(),
+    GiurisprudenzaScraper(),
+    EconomiaScraper(),
+    SociologiaScraper(),
+    CogsciScraper(),
+]

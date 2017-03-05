@@ -1,0 +1,24 @@
+{
+  "db_path": "db.sqlite3",
+  "bot": {
+    "url": "https://api.telegram.org/bot{}/sendMessage",
+    "bot_id": "234243:fdjlkasjalksd",
+    "enabled": true,
+    "send_interval": 60
+  },
+  "log": {
+    "level": "info",
+    "file": "cnb.log"
+  },
+  "scraping": {
+    "timeout": 300,
+    "old_news_factor": 2
+  },
+  "channels": [
+    {
+      "channel": "UnitnLettereNews",
+      "enabled": true,
+      "scrapeUrl": "http://unitn.it/~lettere",
+    },
+  ]
+}
