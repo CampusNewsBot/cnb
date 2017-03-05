@@ -38,42 +38,41 @@ class Sender:
             send_admin(error_message)
             return
 
-        chats = r.table('chats').run(self.db)
         for message in messages:
-            chat = [x for x in chats if x['id'] == message['chat']][0]
+            channel = list(filter(lambda c: c['channel'] == message.channel,
+                            config()['channels']))
 
             logging.info('Sending news: %s', message['id'])
 
-            if not chat and chat['enabled']:
-                logging.info('Chat disabled, not sending')
+            if not channel['enabled']:
+                logging.info('Channel disabled, not sending')
                 continue
 
             payload = json.dumps(
-                {'chat_id': '@' + chat['chat_id'],
-                 'text': '{text}\n-- {author}'.format(**message)})
+                {'chat_id': '@' + channel['channel'],
+                 'text': '{text}\n-- {author}'.format(message.text, message.author)})
 
             req = urllib.request.Request(
-                url=config.telegram_url.format(bot['bot_id']),
+                url=config()['bot']['url'].format(config['bot']['bot_id']),
                 data=payload.encode('utf-8'),
                 headers={'Content-Type': 'application/json'})
             resp = urllib.request.urlopen(req)
 
             if resp.status == 200:
-                r.table('news').get(message['id'])\
-                    .update({'send_date': r.now()}).run(self.db)
+                message.send_date = datetime.datetime.now()
+                message.save()
                 logging.info('Sent news: %s', message['id'])
             else:
                 logging.error('Send failed: %s', message['id'])
 
 
 def send_admin(message):
-    db = r.connect(**config.database)
     payload = json.dumps(
         {'text': message,
-         'chat_id': r.table('chats').get('admin').run(db)['chat_id']})
+         'chat_id': config()['admin_chat'] })
 
     req = urllib.request.Request(
-        url=config.telegram_url.format(BOT_QUERY.run(db)['bot_id']),
+        url=config()['bot']['url'].format(config['bot']['bot_id']),
         data=payload.encode('utf-8'),
         headers={'Content-Type': 'application/json'})
     urllib.request.urlopen(req)
